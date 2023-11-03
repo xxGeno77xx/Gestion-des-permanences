@@ -18,6 +18,6 @@ class Departement extends Model
 
     public function users(): HasManyThrough
     {
-        return $this->HasManyThrough(User::class, Service::class);
+        return $this->hasManyThrough(User::class, Service::class);
     }
 }

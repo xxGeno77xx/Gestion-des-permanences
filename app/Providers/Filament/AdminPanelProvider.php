@@ -28,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('/')
             ->login()
             ->pages([])
+            ->topNavigation()
             ->widgets([])
             ->colors([
                 'primary' => Color::Amber,

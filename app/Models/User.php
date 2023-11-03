@@ -5,11 +5,13 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class User extends Authenticatable
 {
@@ -46,10 +48,9 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-
-    public function departement(): HasOneThrough
+    public function departement(): HasManyThrough
     {
-        return $this->HasOneThrough(Departement::class , Service::class);
+        return $this->hasManyThrough(Departement::class , Service::class);
     }
 
     public function service(): belongsTo
