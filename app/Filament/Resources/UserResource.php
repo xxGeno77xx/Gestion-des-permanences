@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,42 +35,26 @@ class UserResource extends Resource
             ->schema([
                 Card::make()
                     ->schema([
-                        TextInput::make('name')
-                            ->label("Nom")
-                            ->required(),
+                          // TextColumn::make('id')
+                //     ->sortable()
+                //     ->label(strval(__('filament-authentication::filament-authentication.field.id'))),
+                TextColumn::make('name')
+                ->searchable()
+                ->sortable()
+                ->label('Nom'),
+            TextColumn::make('email')
+                ->searchable()
+                ->sortable()
+                ->label('Email'),
 
-                        TextInput::make('email')
-                            ->required()
-                            ->email()
-                            ->unique(table: static::$model, ignorable: fn ($record) => $record)
-                            ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
-                            ->label('Email'),
 
-                        TextInput::make('password')
-                            ->same('passwordConfirmation')
-                            ->password()
-                            ->maxLength(255)
-                            ->required(fn ($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
-                            ->dehydrateStateUsing(fn ($state) => ! empty($state) ? Hash::make($state) : '')
-                            ->label('Mot de passe'),
-
-                        TextInput::make('passwordConfirmation')
-                            ->password()
-                            ->dehydrated(false)
-                            ->maxLength(255)
-                            ->label("Confirmation de mot de passe"),
-
-                        Select::make('service_id')
-                            ->label('Service')
-                            ->searchable()
-                            ->options(
-                                Service::select(['nom_service','id'])->pluck('nom_service','id')
-                            )
-
-                       
-                    ])->columns(2),
-
-            ]);
+            TagsColumn::make('roles.name')
+                ->label('test'),
+            TextColumn::make('created_at')
+                ->dateTime('d-m-Y H:i:s')
+                ->label(strval(__('filament-authentication::filament-authentication.field.user.created_at'))),
+            ])
+        ]);
        
     }
 
