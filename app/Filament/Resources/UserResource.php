@@ -10,11 +10,13 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -31,31 +33,63 @@ class UserResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $loggedService = Service::where('id', auth()->user()->service_id)->value('departement_id');
+
         return $form
             ->schema([
-                Card::make()
+                Grid::make()
                     ->schema([
-                          // TextColumn::make('id')
-                //     ->sortable()
-                //     ->label(strval(__('filament-authentication::filament-authentication.field.id'))),
-                TextColumn::make('name')
-                ->searchable()
-                ->sortable()
-                ->label('Nom'),
-            TextColumn::make('email')
-                ->searchable()
-                ->sortable()
-                ->label('Email'),
+                        Card::make([
+                            TextInput::make('name')
+                                ->label('Nom')
+                                ->required(),
+
+                            TextInput::make('email')
+                                ->required()
+                                ->email()
+                                ->unique(table: static::$model, ignorable: fn($record) => $record)
+                                ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
+                                ->label('email'),
+
+                            TextInput::make('password')
+                                ->same('passwordConfirmation')
+                                ->password()
+                                ->maxLength(255)
+                                ->required(fn($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
+                                ->dehydrateStateUsing(fn($state) => !empty($state) ? Hash::make($state) : '')
+                                ->label('Mot de passe'),
+
+                            TextInput::make('passwordConfirmation')
+                                ->password()
+                                ->dehydrated(false)
+                                ->maxLength(255)
+                                ->label('Confirmation de mot de passe'),
+
+                            //removed super admin from roles list here
+                            Select::make('roles')
+                                ->multiple()
+                                ->relationship('roles', 'name')
+                                // line below removes super admin role from roles list when attributing roles to newly created users
+                                ->relationship('roles', 'name')
+                                ->preload(true)
+                                ->label('Rôles'),
+                            Select::make('service_id')
+                                ->label('Service')
+                                ->options(
+                                    Service::whereHas('departement', function ($query) use ($loggedService) {
+                                        $query->where('departement_id', $loggedService);
+                                    })->get()
+                                        ->pluck('nom_service', 'id')
+                                )
+                           
 
 
-            TagsColumn::make('roles.name')
-                ->label('test'),
-            TextColumn::make('created_at')
-                ->dateTime('d-m-Y H:i:s')
-                ->label(strval(__('filament-authentication::filament-authentication.field.user.created_at'))),
-            ])
-        ]);
-       
+
+                        ])->columns(2)
+
+                    ])->columns(2)
+
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -76,6 +110,10 @@ class UserResource extends Resource
                     ->label('Date d\'inscription'),
 
                 TextColumn::make('service'),
+
+                BadgeColumn::make('roles.name')
+                    ->label('Rôles'),
+
             ])
             ->filters([
                 //
@@ -89,14 +127,14 @@ class UserResource extends Resource
                 ]),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -104,5 +142,5 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
-    }    
+    }
 }

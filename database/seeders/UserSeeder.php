@@ -28,12 +28,12 @@ class UserSeeder extends Seeder
             'Félicité'
          ];
 //========================ADMIN=====================================
-        $superAdmin=User::firstOrCreate([
-            "email"=>"superadministrateur@laposte.tg",
-            'password'=>Hash::make('11111111'),
-            'name'=>'Super_administrateur',
-            'service_id'=> 1,
-        ]);
+        // $superAdmin=User::firstOrCreate([
+        //     "email"=>"superadministrateur@laposte.tg",
+        //     'password'=>Hash::make('11111111'),
+        //     'name'=>'Super_administrateur',
+        //     'service_id'=> 1,
+        // ]);
 //========================otherServices=============================
         foreach($names as $key => $name)
         {   
