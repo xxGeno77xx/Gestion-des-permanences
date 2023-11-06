@@ -10,7 +10,10 @@ use Filament\Forms\Form;
 use App\Models\Permanence;
 use Filament\Tables\Table;
 use App\Models\Departement;
+use App\Enums\PermissionsClass;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -34,36 +37,41 @@ class PermanenceResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-newspaper';
 
     public static function form(Form $form): Form
-    {   
+    {
         $serviceConnecte = Service::where('id', auth()->user()->service_id)
-                                                ->value('departement_id');
+            ->value('departement_id');
+
         return $form
             ->schema([
-
-                Repeater::make('users')
-                ->label('')
+                Card::make()
                     ->schema([
-                        Select::make('participants')
-                        ->label('Agents')
-                        ->options(
-                            User::whereHas('service', function ($query) use ($serviceConnecte) {
-                                $query->where('departement_id', $serviceConnecte);
-                            })->pluck('name','users.id')
-                        )
-                        ->multiple()
-                        ->required()
-                        
-                    ])
-                    ->deletable(false)
-                    ->addable(false),
-                DatePicker::make('date_debut')
-                    ->required(),
-                DatePicker::make('date_fin')
-                    ->required(),
-                Hidden::make('departement_id')
-                    ->default(Departement::whereHas('services', function ($query) use ($serviceConnecte) {
-                        $query->where('departement_id', $serviceConnecte);
-                    })->value('id'))        
+                        DatePicker::make('date_debut')
+                        ->required(),
+                    DatePicker::make('date_fin')
+                        ->required(),
+                        Repeater::make('users')
+                        ->label('')
+                        ->schema([
+                            Select::make('participants')
+                                ->label('Agents')
+                                ->options(
+                                    User::whereHas('service', function ($query) use ($serviceConnecte) {
+                                        $query->where('departement_id', $serviceConnecte);
+                                    })->pluck('name', 'users.id')
+                                )
+                                ->multiple()
+                                ->required()
+                        ])
+                        ->deletable(false)
+                        ->addable(false)
+                        ->columnSpanFull(),
+                   
+                    Hidden::make('departement_id')
+                        ->default(Departement::whereHas('services', function ($query) use ($serviceConnecte) {
+                            $query->where('departement_id', $serviceConnecte);
+                        })->value('id'))
+                    ])->columns(2),
+             
             ]);
     }
 
@@ -72,8 +80,8 @@ class PermanenceResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('date_debut')
-                ->label('Année')
-                ->date('Y'),
+                    ->label('Année')
+                    ->date('Y'),
 
                 TextColumn::make('departement')
             ])
@@ -95,14 +103,14 @@ class PermanenceResource extends Resource
                 // ]),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -110,12 +118,22 @@ class PermanenceResource extends Resource
             'create' => Pages\CreatePermanence::route('/create'),
             'edit' => Pages\EditPermanence::route('/{record}/edit'),
         ];
-    }   
-    
+    }
+
     public static function getWidgets(): array
     {
         return [
             PermanenceList::class,
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+
+        return auth()->user()->hasAnyPermission([         
+            PermissionsClass::permanences_create()->value,
+            PermissionsClass::permanences_read()->value,
+            PermissionsClass::permanences_update()->value
+        ]);
     }
 }

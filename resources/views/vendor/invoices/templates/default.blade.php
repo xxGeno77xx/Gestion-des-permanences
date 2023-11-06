@@ -75,12 +75,28 @@
         }
 
         .table.table-items td {
-            border-top: 1px solid #dee2e6;
+            border-top: 2px solid #dee2e6;
+            border-bottom: 2px solid #dee2e6;
+
+        }
+
+        .topBottomBorder {
+            border-top: 2px solid #dee2e6;
+            border-bottom: 2px solid #dee2e6;
+
+        }
+
+        .topBottomBorderMonth {
+            border-top: 2px solid #dee2e6;
+            border-bottom: 2px solid #dee2e6;
+            text-align: right;
+
         }
 
         .table thead th {
             vertical-align: bottom;
             border-bottom: 2px solid #dee2e6;
+
         }
 
         .mt-5 {
@@ -146,6 +162,14 @@
         .cool-gray {
             color: #6B7280;
         }
+
+        .headText {
+            font-weight: 500;
+            color: rgb(31 71 132);
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+            font-family: ui-sans-serif,
+        }
     </style>
 </head>
 @php
@@ -162,7 +186,8 @@
 
     {{-- Seller - Buyer --}}
     <h2 class="text-4xl  text-center py-6 font-extrabold dark:text-white">Planning des permanences pour les Samedis du
-        {{carbon::parse( $invoice->seller->currentRecord->date_debut)->format('d-m-Y') }} au {{ carbon::parse($invoice->seller->currentRecord->date_fin)->format('d-m-Y') }}</h2>
+        {{ carbon::parse($invoice->seller->currentRecord->date_debut)->format('d-m-Y') }} au
+        {{ carbon::parse($invoice->seller->currentRecord->date_fin)->format('d-m-Y') }}</h2>
     <h2 class="text-4xl  text-center py-2 font-extrabold dark:text-white">SPT</h2>
     <table class="table">
         <thead>
@@ -190,51 +215,47 @@
     {{-- Table --}}
     <table class="table table-items">
         <thead>
-            <tr>
-                <th scope="col" class="border-0 pl-0">Dates</th>
+            <tr class="topBottomBorder">
+                <th scope="col" class="topBottomBorder">Dates</th>
                 @foreach ($invoice->seller->services as $service)
-                    <th scope="col" class="border-0 px-5">{{ $service->nom_service }}</th>
+                    <th scope="col">{{ $service->nom_service }}</th>
                 @endforeach
             </tr>
         </thead>
         <tbody>
             {{-- Items --}}
-            @foreach ($invoice->seller->months as $month)
+            @foreach ($invoice->seller->months as $value => $month)
                 <tr>
-                    <th scope="col" class="border-0 pl-0 text-center">
-                        {{ carbon::parse($month )->translatedFormat('F') }}
+                    <th class="topBottomBorderMonth">
+                        {{ carbon::parse($month)->translatedFormat('F') }}
                     </th>
+                    @for ($i = 0; $i < count($invoice->seller->services); $i++)
+                        <th class="topBottomBorderMonth">
+                        </th>
+                    @endfor
                 </tr>
                 @foreach ($invoice->seller->days as $day)
-                    @if (carbon::parse($day)->format('F') == $month))
-                            <tr>
-                                    <th scope="col" class="border-0 pl-0">
-                                        <div>
-                                        </div>
-                                        <div>
-                                            <div>{{ carbon::parse($day)->translatedFormat('l, d F Y') }}</div>
-                                            {{-- <div>jobs@sailboatui.com</div> --}}
-                                        </div>
-                                    </th>
-                                    @for ($k = 0; $k < $invoice->seller->services->count(); $k++)
-                                        <td class="px-0">
-                                            <span>
-                                                {{ $invoice->seller->userNames[$y + $k] }}
-                                            </span>
-                                        </td>
-                                    @endfor
-
-                                    @php
-                                        $y = $y + $k;
-                                    @endphp
-                                @elseif($loop->last)
-                                @break
-
-                            </tr>
-                    @endif
-                @endforeach
+                    @if (carbon::parse($day)->format('F') == $month)
+                        <tr class="topBottomBorder">
+                            <th class="topBottomBorder">
+                                {{ carbon::parse($day)->translatedFormat('l, d F Y') }}
+                            </th>
+                            @for ($k = 0; $k < $invoice->seller->services->count(); $k++)
+                                <td class="topBottomBorder">
+                                    <span>
+                                        {{ $invoice->seller->userNames[$y + $k] }}
+                                    </span>
+                                </td>
+                            @endfor
+                            @php
+                                $y = $y + $k;
+                            @endphp
+                        </tr>
+                    @elseif($loop->last)
+                    @break
+                @endif
             @endforeach
-       
+        @endforeach
     </tbody>
 </table>
 
@@ -272,9 +293,9 @@
 </tr> --}}
 <br>
 {{-- @if ($invoice->notes) --}}
-    <p class="text-right">
-        <strong>{!! $invoice->notes !!}</strong> 
-    </p>
+<p class="text-right">
+    <strong>{!! $invoice->notes !!}</strong>
+</p>
 {{-- @endif --}}
 
 {{-- <p>
@@ -284,7 +305,7 @@
     {{ trans('invoices::invoice.pay_until') }}: {{ $invoice->getPayUntilDate() }}
 </p> --}}
 
-<p class="text-right"> <strong>Lomé, le  {{ $invoice->getDate() }}</strong></p>
+<p class="text-right"> <strong>Lomé, le {{ $invoice->getDate() }}</strong></p>
 
 
 <script type="text/php">

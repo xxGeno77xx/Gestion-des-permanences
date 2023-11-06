@@ -8,12 +8,15 @@ use Filament\Tables;
 use App\Models\Presence;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Enums\PermissionsClass;
 use Filament\Resources\Resource;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Hidden;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
+use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\PresenceResource\Pages;
 use App\Filament\Resources\PresenceResource\RelationManagers;
 
@@ -49,14 +52,27 @@ class PresenceResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('date'),
-                TextColumn::make('nom'),
+                TextColumn::make('nom')
+                    ->searchable(),
                 TextColumn::make('heure_arrivee')
                     ->label('Heure d\'arrivée'),
                 TextColumn::make('heure_depart')
                     ->label('Heure de départ'),
             ])
             ->filters([
-                //
+                Filter::make('date')
+                ->color('amber')
+                    ->form([
+                        DatePicker::make('search_date'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['search_date'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('date', '=', $date),
+                            );
+                            
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -67,14 +83,14 @@ class PresenceResource extends Resource
                 ]),
             ])->defaultsort('heure_arrivee', 'asc');
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -82,5 +98,16 @@ class PresenceResource extends Resource
             'create' => Pages\CreatePresence::route('/create'),
             'edit' => Pages\EditPresence::route('/{record}/edit'),
         ];
-    }    
+    }
+
+    
+    public static function canViewAny(): bool
+    {
+
+        return auth()->user()->hasAnyPermission([         
+            PermissionsClass::presences_create()->value,
+            PermissionsClass::presences_read()->value,
+            PermissionsClass::presences_update()->value
+        ]);
+    }
 }

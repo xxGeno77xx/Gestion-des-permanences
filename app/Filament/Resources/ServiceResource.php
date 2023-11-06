@@ -2,15 +2,16 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\Departement;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Service;
 use Filament\Forms\Form;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\Models\Departement;
+use App\Enums\PermissionsClass;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ServiceResource\Pages;
@@ -21,14 +22,14 @@ class ServiceResource extends Resource
 {
     protected static ?string $model = Service::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-square-3-stack-3d';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 TextInput::make('nom_service')
-                    ->unique()
+                    ->unique(ignoreRecord: true)
                     ->required(),
                 Select::make('departement_id')
                     ->label('Nom du département')
@@ -77,4 +78,15 @@ class ServiceResource extends Resource
             'edit' => Pages\EditService::route('/{record}/edit'),
         ];
     }    
+
+    
+    public static function canViewAny(): bool
+    {
+
+        return auth()->user()->hasAnyPermission([         
+            PermissionsClass::services_create()->value,
+            PermissionsClass::services_read()->value,
+            PermissionsClass::services_update()->value
+        ]);
+    }
 }

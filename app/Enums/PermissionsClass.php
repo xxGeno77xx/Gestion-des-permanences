@@ -8,10 +8,10 @@ use Spatie\Enum\Enum;
 
  * //==================================================
  * ENGINES
- * @method static self parmanences_create()
- * @method static self parmanences_read()
- * @method static self parmanences_update()
- * @method static self parmanences_delete()
+ * @method static self permanences_create()
+ * @method static self permanences_read()
+ * @method static self permanences_update()
+ * @method static self permanences_delete()
  * //==================================================
  * REPARATIONS
  * @method static self utilisateurs_create()
@@ -20,10 +20,10 @@ use Spatie\Enum\Enum;
  * @method static self utilisateurs_delete()
  * // =================================================
  * DEPARTEMENTS
- * @method static self Departements_create()
- * @method static self Departements_read()
- * @method static self Departements_update()
- * @method static self Departements_delete()
+ * @method static self departements_create()
+ * @method static self departements_read()
+ * @method static self departements_update()
+ * @method static self departements_delete()
  * // =================================================
  * MARQUES  
  * @method static self services_create()
@@ -35,10 +35,22 @@ use Spatie\Enum\Enum;
  * @method static self Permissions_read()
  * // =================================================
  * USERS
- * @method static self Roles_create()
- * @method static self Roles_read()
- * @method static self Roles_update()
- * @method static self Roles_delete()
+ * @method static self roles_create()
+ * @method static self roles_read()
+ * @method static self roles_update()
+ * @method static self roles_delete()
+ * // =================================================
+ * PRESENCES
+ * @method static self presences_create()
+ * @method static self presences_read()
+ * @method static self presences_update()
+ * @method static self presences_delete()
+ * // =================================================
+ * PRESENCES
+ * @method static self presences_create()
+ * @method static self presences_read()
+ * @method static self presences_update()
+ * @method static self presences_delete()
  * // =================================================
  */
 

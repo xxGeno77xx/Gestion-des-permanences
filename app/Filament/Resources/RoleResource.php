@@ -6,21 +6,25 @@ use Filament\Forms;
 use App\Models\Role;
 use Filament\Tables;
 use Filament\Forms\Form;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\Enums\PermissionsClass;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\RoleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RoleResource\RelationManagers;
+use App\Filament\Resources\RoleResource\RelationManagers\PermissionsRelationManager;
 
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Authentification';
+
+    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
 
     public static function form(Form $form): Form
     {
@@ -67,7 +71,7 @@ class RoleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PermissionsRelationManager::class
         ];
     }
     
@@ -79,4 +83,15 @@ class RoleResource extends Resource
             'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
     }    
+
+    
+    public static function canViewAny(): bool
+    {
+
+        return auth()->user()->hasAnyPermission([         
+            PermissionsClass::roles_create()->value,
+            PermissionsClass::roles_read()->value,
+            PermissionsClass::roles_update()->value
+        ]);
+    }
 }

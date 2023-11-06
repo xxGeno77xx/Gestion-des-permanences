@@ -8,6 +8,7 @@ use Filament\Tables;
 use App\Models\Service;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Enums\PermissionsClass;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
@@ -27,6 +28,8 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $label = 'Utilisateurs';
+
+    protected static ?string $navigationGroup = 'Authentification';
 
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
@@ -81,10 +84,6 @@ class UserResource extends Resource
                                     })->get()
                                         ->pluck('nom_service', 'id')
                                 )
-                           
-
-
-
                         ])->columns(2)
 
                     ])->columns(2)
@@ -94,6 +93,7 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
+        
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -142,5 +142,15 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+
+        return auth()->user()->hasAnyPermission([         
+            PermissionsClass::utilisateurs_create()->value,
+            PermissionsClass::utilisateurs_read()->value,
+            PermissionsClass::utilisateurs_update()->value
+        ]);
     }
 }

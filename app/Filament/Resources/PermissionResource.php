@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\Permission;
 use Filament\Tables\Table;
+use App\Enums\PermissionsClass;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,7 +19,9 @@ class PermissionResource extends Resource
 {
     protected static ?string $model = Permission::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Authentification';
+
+    protected static ?string $navigationIcon = 'heroicon-o-key';
 
     public static function form(Form $form): Form
     {
@@ -60,16 +63,18 @@ class PermissionResource extends Resource
     {
         return [
             'index' => Pages\ListPermissions::route('/'),
-            'create' => Pages\CreatePermission::route('/create'),
-            'edit' => Pages\EditPermission::route('/{record}/edit'),
+            // 'create' => Pages\CreatePermission::route('/create'),
+            // 'edit' => Pages\EditPermission::route('/{record}/edit'),
         ];
     }    
 
-    // public static function canViewAny(): bool
-    // {
-    //     return auth()->user()->hasAnyPermission([
-    //         PermissionsClass::Permissions_read()->value,
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->hasAnyPermission([
+            PermissionsClass::permissions_read()->value,
            
-    //     ]);
-    // }
+        ]);
+    }
+
+    
 }

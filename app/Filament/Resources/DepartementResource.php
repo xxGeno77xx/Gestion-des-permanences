@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Departement;
+use App\Enums\PermissionsClass;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -27,6 +28,7 @@ class DepartementResource extends Resource
             ->schema([
                 TextInput::make('nom_departement')
                         ->label('Nom du département')
+                        ->unique(ignoreRecord:true)
                         ->required(),
             ]);
     }
@@ -42,7 +44,7 @@ class DepartementResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->color('amber'),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
@@ -58,4 +60,14 @@ class DepartementResource extends Resource
             'index' => Pages\ManageDepartements::route('/'),
         ];
     }    
+
+    public static function canViewAny(): bool
+    {
+
+        return auth()->user()->hasAnyPermission([         
+            PermissionsClass::departements_create()->value,
+            PermissionsClass::departements_read()->value,
+            PermissionsClass::departements_update()->value
+        ]);
+    }
 }
