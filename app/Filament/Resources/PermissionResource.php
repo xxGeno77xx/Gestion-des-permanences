@@ -71,8 +71,7 @@ class PermissionResource extends Resource
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyPermission([
-            PermissionsClass::permissions_read()->value,
-           
+            PermissionsClass::permissions_read()->value,  
         ]);
     }
 

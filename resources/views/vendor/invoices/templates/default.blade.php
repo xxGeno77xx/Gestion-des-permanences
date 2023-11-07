@@ -259,51 +259,13 @@
     </tbody>
 </table>
 
-
-
-{{-- <tr>
-    <td class="pl-0">
-        {{ $item->title }}
-
-        @if ($item->description)
-            <p class="cool-gray">{{ $item->description }}</p>
-        @endif
-    </td>
-    @if ($invoice->hasItemUnits)
-        <td class="text-center">{{ $item->units }}</td>
-    @endif
-    <td class="text-center">{{ $item->quantity }}</td>
-    <td class="text-right">
-        {{ $invoice->formatCurrency($item->price_per_unit) }}
-    </td>
-    @if ($invoice->hasItemDiscount)
-        <td class="text-right">
-            {{ $invoice->formatCurrency($item->discount) }}
-        </td>
-    @endif
-    @if ($invoice->hasItemTax)
-        <td class="text-right">
-            {{ $invoice->formatCurrency($item->tax) }}
-        </td>
-    @endif
-
-    <td class="text-right pr-0">
-        {{ $invoice->formatCurrency($item->sub_total_price) }}
-    </td>
-</tr> --}}
+</td>
+</tr>
 <br>
-{{-- @if ($invoice->notes) --}}
 <p class="text-right">
     <strong>{!! $invoice->notes !!}</strong>
 </p>
-{{-- @endif --}}
 
-{{-- <p>
-    {{ trans('invoices::invoice.amount_in_words') }}: {{ $invoice->getTotalAmountInWords() }}
-</p>
-<p>
-    {{ trans('invoices::invoice.pay_until') }}: {{ $invoice->getPayUntilDate() }}
-</p> --}}
 
 <p class="text-right"> <strong>Lomé, le {{ $invoice->getDate() }}</strong></p>
 

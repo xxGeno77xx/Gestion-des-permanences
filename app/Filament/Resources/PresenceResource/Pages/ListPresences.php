@@ -5,6 +5,7 @@ namespace App\Filament\Resources\PresenceResource\Pages;
 use App\Models\User;
 use Filament\Actions;
 use App\Models\Service;
+use App\Enums\PermissionsClass;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\PresenceResource;
@@ -42,5 +43,20 @@ class ListPresences extends ListRecords
         ->join('users', 'presences.user_id', 'users.id')
         ->select('presences.*', 'users.name as nom');
 
+    }
+
+    protected function authorizeAccess(): void
+    {
+        $user = auth()->user();
+    
+        $userPermission = $user->hasAnyPermission([
+            PermissionsClass::presences_create()->value,
+            PermissionsClass::presences_read()->value,
+            PermissionsClass::presences_update()->value,
+            // PermissionsClass::utilisateurs_delete()->value,
+
+        ]);
+    
+        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 }

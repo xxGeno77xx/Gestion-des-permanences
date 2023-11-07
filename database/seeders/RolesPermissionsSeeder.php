@@ -17,6 +17,7 @@ class RolesPermissionsSeeder extends Seeder
      * Run the database seeds.
      */
     const SuperAdmin='Super administrateur';
+    const Manager='Manager';
     public function run(): void
     {
         $permissions = PermissionsClass::toValues();
@@ -28,11 +29,18 @@ class RolesPermissionsSeeder extends Seeder
             ]);
         }
 
-        $role=Role::firstOrCreate([
+        $role = Role::firstOrCreate([
             'name'=>self::SuperAdmin,
             'guard_name'=>'web',
         ]);
+
         $role->syncPermissions($permissions);
+
+        $managerRole = Role::firstOrCreate([
+            'name'=>self::Manager,
+            'guard_name'=>'web',
+        ]);
+        
 
         $superAdmin=User::firstOrCreate([
             "email"=>"superadministrateur@laposte.tg",

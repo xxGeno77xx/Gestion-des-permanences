@@ -51,7 +51,8 @@ class UserResource extends Resource
                                 ->required()
                                 ->email()
                                 ->unique(table: static::$model, ignorable: fn($record) => $record)
-                                ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
+                                ->regex('/.*@laposte\.tg$/')
+                                ->disabledOn('edit') // field must end with @laposte.tg
                                 ->label('email'),
 
                             TextInput::make('password')
@@ -59,7 +60,7 @@ class UserResource extends Resource
                                 ->password()
                                 ->maxLength(255)
                                 ->required(fn($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
-                                ->dehydrateStateUsing(fn($state) => !empty($state) ? Hash::make($state) : '')
+                                ->dehydrateStateUsing(fn($state, $record) => !empty($state) ? Hash::make($state) : $record->password)
                                 ->label('Mot de passe'),
 
                             TextInput::make('passwordConfirmation')
@@ -68,21 +69,17 @@ class UserResource extends Resource
                                 ->maxLength(255)
                                 ->label('Confirmation de mot de passe'),
 
-                            //removed super admin from roles list here
-                            Select::make('roles')
+                                Select::make('roles')
                                 ->multiple()
-                                ->relationship('roles', 'name')
-                                // line below removes super admin role from roles list when attributing roles to newly created users
                                 ->relationship('roles', 'name')
                                 ->preload(true)
                                 ->label('Rôles'),
-                            Select::make('service_id')
+
+                                Select::make('service_id')
                                 ->label('Service')
+                                ->required()
                                 ->options(
-                                    Service::whereHas('departement', function ($query) use ($loggedService) {
-                                        $query->where('departement_id', $loggedService);
-                                    })->get()
-                                        ->pluck('nom_service', 'id')
+                                    Service::pluck('nom_service', 'id')
                                 )
                         ])->columns(2)
 

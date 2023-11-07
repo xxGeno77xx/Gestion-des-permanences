@@ -4,6 +4,7 @@ namespace App\Filament\Resources\PermanenceResource\Pages;
 
 use Filament\Actions;
 use App\Models\Permanence;
+use App\Enums\PermissionsClass;
 use Filament\Pages\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\PermanenceResource;
@@ -31,5 +32,20 @@ class EditPermanence extends EditRecord
         return [
             PermanenceList::class
         ];
+    }
+
+    protected function authorizeAccess(): void
+    {
+        $user = auth()->user();
+    
+        $userPermission = $user->hasAnyPermission([
+            // PermissionsClass::utilisateurs_create()->value,
+            PermissionsClass::permanences_read()->value,
+            PermissionsClass::permanences_update()->value,
+            PermissionsClass::permanences_delete()->value,
+
+        ]);
+    
+        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 }
