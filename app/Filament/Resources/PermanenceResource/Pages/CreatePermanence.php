@@ -38,7 +38,6 @@ class CreatePermanence extends CreateRecord
     {
         $permanence = $this->record;
 
-
         $samedis = DateFunction::getDateForSpecificDayBetweenDates($permanence->date_debut, $permanence->date_fin, env('PERMANENCE'));
 
         //All services  with de the department of the logged in user

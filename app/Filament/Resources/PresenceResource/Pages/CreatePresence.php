@@ -26,4 +26,9 @@ class CreatePresence extends CreateRecord
     
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
+
+    protected function getRedirectUrl(): string
+{
+    return $this->getResource()::getUrl('index');
+}
 }

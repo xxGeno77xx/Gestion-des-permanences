@@ -24,20 +24,10 @@ class ManageDepartements extends ManageRecords
         return $actions;
     }
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 
-    // protected function authorizeAccess(): void
-    // {
-    //     $user = auth()->user();
 
-    //     $userPermission = $user->hasAnyPermission([
-
-    //         ,
-    //         PermissionsClass::utilisateurs_read()->value,
-    //         // PermissionsClass::utilisateurs_update()->value,
-    //         // PermissionsClass::utilisateurs_delete()->value,
-
-    //     ]);
-
-    //     abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
-    // }
 }

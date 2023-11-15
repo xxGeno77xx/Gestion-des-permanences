@@ -40,11 +40,10 @@ class ListUsers extends ListRecords
         } elseif (auth()->user()->hasRole(RolesPermissionsSeeder::Manager)) {
             $query = $this->getTableQueryForManager();
         }
+        else  abort( 403, ("Vous n'avez pas access à cette page"));
 
         return $query;
     }
-
-
 
 
     protected function getTableQueryForManager(): ?Builder

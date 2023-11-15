@@ -15,16 +15,21 @@ class CreateService extends CreateRecord
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
-    
+
         $userPermission = $user->hasAnyPermission([
-            
+
             PermissionsClass::services_create()->value,
             PermissionsClass::services_read()->value,
             // PermissionsClass::utilisateurs_update()->value,
             // PermissionsClass::utilisateurs_delete()->value,
 
         ]);
-    
-        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
+
+        abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PermanenceResource\Pages;
 
+use App\Enums\StatesClass;
 use Filament\Actions;
 use App\Models\Service;
 use App\Enums\PermissionsClass;
@@ -32,6 +33,7 @@ class ListPermanences extends ListRecords
                 $query->where('departement_id', $loggedService);
             })
             ->join('departements', 'permanences.departement_id', 'departements.id')
+            ->where('permanences.statut', StatesClass::Active()->value)
             ->select('permanences.*', 'nom_departement as departement');
 
     }

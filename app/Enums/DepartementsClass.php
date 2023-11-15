@@ -11,4 +11,14 @@ use \Spatie\Enum\Enum;
  */
 class DepartementsClass extends Enum
 {
+    protected static function values()
+    {
+        return function(string $name): string|int {
+
+            $traductions = array(
+                "DEC" => "Division Epargen et crédit",
+            );
+            return strtr(str_replace("_", ": ", str($name)), $traductions);;
+        };
+    }
 }

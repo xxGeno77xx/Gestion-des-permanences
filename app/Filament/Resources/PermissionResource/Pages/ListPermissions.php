@@ -23,9 +23,9 @@ class ListPermissions extends ListRecords
         $user = auth()->user();
     
         $userPermission = $user->hasAnyPermission([
-            PermissionsClass::permissions_create()->value,
+            // PermissionsClass::permissions_create()->value,
             PermissionsClass::permissions_read()->value,
-            PermissionsClass::permissions_update()->value,
+            // PermissionsClass::permissions_update()->value,
             // PermissionsClass::utilisateurs_delete()->value,
 
         ]);

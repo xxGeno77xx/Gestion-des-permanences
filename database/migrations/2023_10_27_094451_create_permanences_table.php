@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Enums\StatesClass;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -20,7 +21,11 @@ return new class extends Migration
             $table->date('date_fin');
             $table->foreignId('departement_id')->constrained();
             $table->string('file')->nullable();
-            $table->string('etat')->nullable();
+            $table->enum('statut',[
+                StatesClass::Inactive()->value,
+                StatesClass::Active()->value]
+            )->default(StatesClass::Active()->value);
+
         });
     }
 

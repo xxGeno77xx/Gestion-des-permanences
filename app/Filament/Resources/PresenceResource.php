@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Enums\PermissionsClass;
 use Filament\Resources\Resource;
+use Filament\Support\Colors\Color;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Hidden;
 use Filament\Tables\Columns\TextColumn;
@@ -58,10 +59,13 @@ class PresenceResource extends Resource
                     ->label('Heure d\'arrivée'),
                 TextColumn::make('heure_depart')
                     ->label('Heure de départ'),
+                TextColumn::make('created_at')
+                    ->label('Heure d\'enregistrement')
+                    ->color(Color::Cyan)
+                    ->date('d-m-Y'),
             ])
             ->filters([
                 Filter::make('date')
-                ->color('amber')
                     ->form([
                         DatePicker::make('search_date'),
                     ])
