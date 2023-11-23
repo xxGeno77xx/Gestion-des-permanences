@@ -19,6 +19,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use App\Filament\Resources\PermanenceResource\Widgets\PermanenceList;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -34,6 +35,10 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([])
             ->colors([
                 'primary' => Color::Sky,
+                'teal'=> Color::Blue,
+                'amber'=> Color::Amber,
+                'cyan'=> Color::Cyan,
+                'red'=> Color::Red,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -43,6 +48,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
+            
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -57,9 +63,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])->colors([
-                'teal'=> Color::Blue,
-                'amber'=> Color::Amber
             ])
             // ->userMenuItems([
             //     'profil' => MenuItem::make(),                

@@ -63,6 +63,11 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'role_user');
     }
+
+    public function permanences()
+    {
+        return $this->belongsToMany(Permanence::class, 'permanence_user');
+    }
 }
 
 

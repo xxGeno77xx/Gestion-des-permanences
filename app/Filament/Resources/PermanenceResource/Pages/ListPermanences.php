@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\PermanenceResource\Pages;
 
-use App\Enums\StatesClass;
 use Filament\Actions;
 use App\Models\Service;
+use App\Enums\StatesClass;
 use App\Enums\PermissionsClass;
+use Illuminate\Support\Facades\DB;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\PermanenceResource;
@@ -33,8 +34,11 @@ class ListPermanences extends ListRecords
                 $query->where('departement_id', $loggedService);
             })
             ->join('departements', 'permanences.departement_id', 'departements.id')
+            ->join('permanence_user', 'permanence_user.permanence_id', 'permanences.id')
+
             ->where('permanences.statut', StatesClass::Active()->value)
-            ->select('permanences.*', 'nom_departement as departement');
+            ->select('permanences.*', 'nom_departement as departement', DB::raw('MAX(date)as date_fin'), DB::raw('MIN(date) as date_debut'))
+            ->groupBy('permanences.id', 'nom_departement');;
 
     }
 

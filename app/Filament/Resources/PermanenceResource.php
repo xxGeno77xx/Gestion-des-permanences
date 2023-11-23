@@ -2,16 +2,20 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
 use App\Models\Service;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\Permanence;
 use Filament\Tables\Table;
 use App\Models\Departement;
+
 use App\Enums\PermissionsClass;
 use Filament\Resources\Resource;
+use Illuminate\Support\Collection;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
@@ -41,37 +45,65 @@ class PermanenceResource extends Resource
         $serviceConnecte = Service::where('id', auth()->user()->service_id)
             ->value('departement_id');
 
+        $nombreDeServices = Service::whereHas('departement', function ($query) use ($serviceConnecte) {
+            $query->where('id', $serviceConnecte);
+        })->count();
+
         return $form
             ->schema([
+                Hidden::make('departement_id')
+                    ->default(Departement::whereHas('services', function ($query) use ($serviceConnecte) {
+                        $query->where('departement_id', $serviceConnecte);
+                    })->value('id')),
+
                 Card::make()
                     ->schema([
-                        DatePicker::make('date_debut')
-                        ->required(),
-                    DatePicker::make('date_fin')
-                        ->required(),
-                        Repeater::make('users')
-                        ->label('')
-                        ->schema([
-                            Select::make('participants')
-                                ->label('Agents')
-                                ->options(
-                                    User::whereHas('service', function ($query) use ($serviceConnecte) {
+                        Repeater::make('permanenceUsers')
+                            ->addActionLabel('Ajouter un jour de permanence')
+                            ->label('Jours de permanence')
+                            ->itemLabel(function (array $state): ?string {
+                                if (!$state['date']) {
+                                    return null;
+
+                                } else {
+                                    return Carbon::parse($state['date'])->TranslatedFormat('l, \le d M Y');
+                                }
+                            })
+                            ->relationship('permanenceUsers')
+                            ->schema([
+                                DatePicker::make('date')
+                                    ->native(false)
+                                    ->required(),
+
+                                Select::make('service')
+                                    ->label('Service')
+                                    ->dehydrated(false)
+                                    ->options(Service::whereHas('departement', function ($query) use ($serviceConnecte) {
                                         $query->where('departement_id', $serviceConnecte);
-                                    })->pluck('name', 'users.id')
-                                )
-                                ->multiple()
-                                ->required()
-                        ])
-                        ->deletable(false)
-                        ->addable(false)
-                        ->columnSpanFull(),
-                   
-                    Hidden::make('departement_id')
-                        ->default(Departement::whereHas('services', function ($query) use ($serviceConnecte) {
-                            $query->where('departement_id', $serviceConnecte);
-                        })->value('id'))
-                    ])->columns(2),
-             
+                                    })->pluck('nom_service', 'services.id'))
+                                    ->native(false)
+                                    ->live(),
+
+                                Select::make('user_id')
+                                    ->required()
+                                    ->label('Agents')
+                                    ->preload()
+                                    ->options(
+                                        fn(Get $get): Collection => User::query()
+                                            ->where('service_id', $get('service'))
+                                            ->pluck('name', 'users.id')
+                                    )
+
+                                    ->multiple()
+                                    ->minItems($nombreDeServices)
+                                    ->maxItems($nombreDeServices),
+                            ])
+
+                            ->grid(2)
+                            ->reorderable(false)
+                            ->collapsible()
+                    ])
+                    ->columnSpan(2),
             ]);
     }
 
@@ -80,8 +112,12 @@ class PermanenceResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('date_debut')
-                    ->label('Année')
-                    ->date('Y'),
+                    ->label('Date de début')
+                    ->date('d-m-Y'),
+
+                TextColumn::make('date_fin')
+                    ->label('Date de fin')
+                    ->date('d-m-Y'),
 
                 TextColumn::make('departement')
             ])
@@ -130,7 +166,7 @@ class PermanenceResource extends Resource
     public static function canViewAny(): bool
     {
 
-        return auth()->user()->hasAnyPermission([         
+        return auth()->user()->hasAnyPermission([
             PermissionsClass::permanences_create()->value,
             PermissionsClass::permanences_read()->value,
             PermissionsClass::permanences_update()->value

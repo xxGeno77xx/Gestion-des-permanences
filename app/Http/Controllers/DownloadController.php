@@ -8,6 +8,7 @@ use App\Models\Service;
 use App\Models\Permanence;
 use App\Models\Departement;
 use Illuminate\Http\Request;
+use App\Models\permanenceUsers;
 use App\Functions\DateFunction;
 use LaravelDaily\Invoices\Invoice;
 use LaravelDaily\Invoices\Classes\Party;
@@ -17,69 +18,145 @@ class DownloadController extends Controller
 {
     public function downloadPdf(Permanence $record)
     {
-        $lastKValue = null;
+        // $lastKValue = null;
 
-        // returns every order column
-        $participantsOrder = $record
-            ->select('order')
-            ->where('id', $record->id)
-            ->pluck('order');
+        // // returns every order column
+        // $participantsOrder = $record
+        //     ->select('order')
+        //     ->where('id', $record->id)
+        //     ->pluck('order');
 
-        foreach ($participantsOrder as $key => $agentsTrioPerPermanenceDay) {
-            $permanenceDayWithAgents = json_decode($agentsTrioPerPermanenceDay, true);
+        // foreach ($participantsOrder as $key => $agentsTrioPerPermanenceDay) {
+        //     $permanenceDayWithAgents = json_decode($agentsTrioPerPermanenceDay, true);
 
-            for ($i = $key; $i < count($permanenceDayWithAgents); $i++) {
-                for ($j = 0; $j < count($permanenceDayWithAgents[$i]['participants']); $j++) {
-                    $participantsIds[] = $permanenceDayWithAgents[$i]['participants'][$j];
-                } // retrieving  Ids of participants from the orders Json Column and putting them in an array
-            }
+        //     for ($i = $key; $i < count($permanenceDayWithAgents); $i++) {
+        //         for ($j = 0; $j < count($permanenceDayWithAgents[$i]['participants']); $j++) {
+        //             $participantsIds[] = $permanenceDayWithAgents[$i]['participants'][$j];
+        //         } // retrieving  Ids of participants from the orders Json Column and putting them in an array
+        //     }
+        // }
+
+        // $usersArray = [];
+
+        // $lesServices = Service::where('departement_id', auth()->user()->service->departement_id)
+        //     ->select('nom_service')
+        //     ->get();
+
+        // $nomDepartement = Departement::where('id', $record->departement_id)->get()->value('nom_departement');
+
+        // $dates = DateFunction::getDateForSpecificDayBetweenDates($record->date_debut, $record->date_fin, env('PERMANENCE'));
+
+        // $annee = carbon::parse($record->date_debut)->format('Y');
+
+        // $months = [];
+        // $days = [];
+        // $usersNames = [];
+        // $y = 0;
+        // $z = 0;
+
+        // foreach ($dates as $key => $date) {
+        //     //putting months in an array
+        //     if (!in_array(carbon::parse($date)->format('F'), $months)) {
+        //         $months[] = carbon::parse($date)->format('F');
+        //     }
+        //     //putting days in an array
+        //     if (!in_array(carbon::parse($date)->format('l, d-m-Y'), $days)) {
+        //         $days[] = carbon::parse($date)->format('l, d-m-Y');
+        //     }
+        // }
+
+        // foreach ($participantsIds as $key => $id) {
+        //     $usersNames[] = User::where('id', $id)
+        //         ->select('name', 'id')
+        //         ->get()
+        //         ->value('name');
+        // }
+
+        //============================================
+
+
+         //get related records in pivot table
+    $relatedData = PermanenceUsers::where('permanence_id', $record->id)->get();
+
+    $services = Service::where('departement_id', auth()->user()->service->departement_id)
+        ->select('nom_service')
+        ->get();
+
+    $departement = Departement::where('id', $record->departement_id)
+        ->get()
+        ->value('nom_departement');
+
+    $firstPermanenceDay = Carbon::parse($relatedData->first()->date)->TranslatedFormat('l, d M Y');
+
+    $lastPermanenceDay = Carbon::parse($relatedData->last()->date)->TranslatedFormat('l, d M Y');
+
+    $months = [];
+
+    $days = [];
+    $users = [];
+
+    //putting days in an array
+    foreach ($relatedData as $key => $data) {
+        if (!in_array($data->date, $days)) {
+            $days[] = $data->date;
+        }
+    }
+
+    //putting months in an array
+    foreach ($days as $key => $day) {
+        if (!in_array(carbon::parse($day)->TranslatedFormat('F'), $months)) {
+            $months[] = carbon::parse($day)->TranslatedFormat('F');
+        }
+    }
+
+    $users = [];
+    $userNames = [];
+    $intermediateArray = [];
+    $emptyArray = [];
+
+    //putting  users in array
+    foreach ($relatedData as $key => $userField) {
+
+        for ($i = 0; $i < $services->count(); $i++) {
+
+            if (User::find($userField->user_id[$i]) !== null) {
+                $users[] = User::find($userField->user_id[$i]);
+            }      
         }
 
-        $usersArray = [];
+        $usersCollection = collect($users)->sortBy('service_id');
 
-        $lesServices = Service::where('departement_id', auth()->user()->service->departement_id)
-            ->select('nom_service')
-            ->get();
+        foreach ($usersCollection as $aCollection) {
 
-        $nomDepartement = Departement::where('id', $record->departement_id)->get()->value('nom_departement');
-
-        $dates = DateFunction::getDateForSpecificDayBetweenDates($record->date_debut, $record->date_fin, env('PERMANENCE'));
-
-        $annee = carbon::parse($record->date_debut)->format('Y');
-
-        $months = [];
-        $days = [];
-        $usersNames = [];
-        $y = 0;
-        $z = 0;
-
-        foreach ($dates as $key => $date) {
-            //putting months in an array
-            if (!in_array(carbon::parse($date)->format('F'), $months)) {
-                $months[] = carbon::parse($date)->format('F');
-            }
-            //putting days in an array
-            if (!in_array(carbon::parse($date)->format('l, d-m-Y'), $days)) {
-                $days[] = carbon::parse($date)->format('l, d-m-Y');
-            }
+             array_push($intermediateArray, $aCollection);
+                  
         }
+        $usersCollection = collect($emptyArray);
+        $users = [];
 
-        foreach ($participantsIds as $key => $id) {
-            $usersNames[] = User::where('id', $id)
-                ->select('name', 'id')
-                ->get()
-                ->value('name');
+    }
+
+    foreach ($intermediateArray as $key => $user) {
+        if ($user != null) {
+            $userNames[] = $user->name;
         }
+    }
+
+    // dd($days[0]->translatedFormat('l, d F Y'));
+
+    $y = 0;
+    $z = 0;
+
         // ============================================================
         //DEPARTEMENTS
         $data = new Party([
-            'nom_departements' => $nomDepartement,
-            'services'  => $lesServices,
-            'dates' =>  $dates,
+            'nom_departements' => $departement,
+            'services'  => $services,
+            // 'dates' =>  $days,
             'months' =>  $months,
             'days' => $days,
-            'annee' => $annee,
-            'userNames' => $usersNames,
+            // 'annee' => $annee,
+            'userNames' => $userNames,
             'currentRecord' => $record
 
             // 'custom_fields' => [
@@ -105,7 +182,7 @@ class DownloadController extends Controller
 
         $servicesItems = [];
 
-        foreach ($lesServices as $service) {
+        foreach ($services as $service) {
             $servicesItems[] = (new InvoiceItem())->title($service->nom_service);
         }
 
@@ -138,7 +215,7 @@ class DownloadController extends Controller
 
         $notes = [
             'Chef',
-            $nomDepartement,
+            $departement,
         ];
         $notes = implode("<br>", $notes);
 

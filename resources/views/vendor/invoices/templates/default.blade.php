@@ -227,7 +227,7 @@
             @foreach ($invoice->seller->months as $value => $month)
                 <tr>
                     <th class="topBottomBorderMonth">
-                        {{ carbon::parse($month)->translatedFormat('F') }}
+                        {{$month}}
                     </th>
                     @for ($i = 0; $i < count($invoice->seller->services); $i++)
                         <th class="topBottomBorderMonth">
@@ -235,7 +235,7 @@
                     @endfor
                 </tr>
                 @foreach ($invoice->seller->days as $day)
-                    @if (carbon::parse($day)->format('F') == $month)
+                    @if (carbon::parse($day)->translatedFormat('F') == $month)
                         <tr class="topBottomBorder">
                             <th class="topBottomBorder">
                                 {{ carbon::parse($day)->translatedFormat('l, d F Y') }}
@@ -243,6 +243,7 @@
                             @for ($k = 0; $k < $invoice->seller->services->count(); $k++)
                                 <td class="topBottomBorder">
                                     <span>
+                                        
                                         {{ $invoice->seller->userNames[$y + $k] }}
                                     </span>
                                 </td>

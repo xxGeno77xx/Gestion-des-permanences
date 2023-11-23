@@ -16,9 +16,9 @@ class DepartementsClass extends Enum
         return function(string $name): string|int {
 
             $traductions = array(
-                "DEC" => "Division Epargen et crédit",
+                "DEC" => "Division Epargne et Crédit",
             );
-            return strtr(str_replace("_", ": ", str($name)), $traductions);;
+            return strtr(str_replace("_", " ", str($name)), $traductions);;
         };
     }
 }

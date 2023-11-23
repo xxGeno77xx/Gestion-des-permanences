@@ -6,5 +6,6 @@ use Filament\Widgets\Widget;
 
 class PermanenceList extends Widget
 {
-    protected static string $view = 'filament.widgets.permanence-list';
+    protected static ?int $sort = 2;
+    protected static string $view = 'filament.widgets.pointage-button';
 }
