@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 
 class Pointage extends Component
 {
+    
     public function arrival()
     {
 
@@ -37,7 +38,7 @@ class Pointage extends Component
 
             Notification::make()
                 ->title('Bienvenue')
-                ->body('Votre présence a été enrégistrée!')
+                ->body('Votre arrivée a été enrégistrée!')
                 ->icon('heroicon-o-user-plus')
                 ->iconColor('success')
                 ->duration(5000)

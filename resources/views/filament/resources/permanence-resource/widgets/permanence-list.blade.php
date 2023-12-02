@@ -30,6 +30,10 @@
     $days = [];
     $users = [];
 
+
+
+
+    
     //putting days in an array
     foreach ($relatedData as $key => $data) {
         if (!in_array($data->date, $days)) {
@@ -49,16 +53,17 @@
     $intermediateArray = [];
     $emptyArray = [];
 
+
+   
+
     //putting  users in array
     foreach ($relatedData as $key => $userField) {
-
+        
         for ($i = 0; $i < $services->count(); $i++) {
-
-            if (User::find($userField->user_id[$i]) !== null) {
-                $users[] = User::find($userField->user_id[$i]);
+            if (User::find($userField->user_id[$i]['users']) !== null) {
+                $users[] = User::find($userField->user_id[$i]['users']);
             }      
         }
-
         $usersCollection = collect($users)->sortBy('service_id');
 
         foreach ($usersCollection as $aCollection) {
@@ -72,11 +77,12 @@
     }
 
     foreach ($intermediateArray as $key => $user) {
+       
         if ($user != null) {
             $userNames[] = $user->name;
         }
     }
-    
+
     $y = 0;
     $z = 0;
 

@@ -59,6 +59,12 @@ class PermanenceResource extends Resource
                 Card::make()
                     ->schema([
                         Repeater::make('permanenceUsers')
+                        // ->mutateRelationshipDataBeforeFillUsing(function (array $data): array {
+                            
+                        //    dd( $data);
+                     
+                        //     return $data;
+                        // })
                             ->addActionLabel('Ajouter un jour de permanence')
                             ->label('Jours de permanence')
                             ->itemLabel(function (array $state): ?string {
@@ -75,28 +81,43 @@ class PermanenceResource extends Resource
                                     ->native(false)
                                     ->required(),
 
-                                Select::make('service')
-                                    ->label('Service')
-                                    ->dehydrated(false)
-                                    ->options(Service::whereHas('departement', function ($query) use ($serviceConnecte) {
-                                        $query->where('departement_id', $serviceConnecte);
-                                    })->pluck('nom_service', 'services.id'))
-                                    ->native(false)
-                                    ->live(),
+                                repeater::make("user_id")
+                                    ->label('')
+                                    ->addActionLabel('Ajouter un agent')
+                                    // ->dehydrateStateUsing(function($state) {
+                                    //     $array = array();
 
-                                Select::make('user_id')
-                                    ->required()
-                                    ->label('Agents')
-                                    ->preload()
-                                    ->options(
-                                        fn(Get $get): Collection => User::query()
-                                            ->where('service_id', $get('service'))
-                                            ->pluck('name', 'users.id')
-                                    )
+                                    //     foreach($state as $key => $ArrayKey)
+                                    //     {
+                                    //         $array [] = $ArrayKey["users"];
+                                    //     }
+                                    //     return $array;
+                                    // } )
+                                    ->schema([
+                                        Select::make('service')
+                                            ->label('Service')
+                                            // ->dehydrated(false)
+                                            ->options(Service::whereHas('departement', function ($query) use ($serviceConnecte) {
+                                                $query->where('departement_id', $serviceConnecte);
+                                            })->pluck('nom_service', 'services.id'))
+                                            ->native(false)
+                                            ->live(),
 
-                                    ->multiple()
-                                    ->minItems($nombreDeServices)
+                                        Select::make('users')
+                                        // ->dehydrated(false)
+                                            ->native(false)
+                                            ->required()
+                                            ->label('Agent')
+                                            ->preload()
+                                            ->options(
+                                                fn(Get $get): Collection => User::query()
+                                                    ->where('service_id', $get('service'))
+                                                    ->pluck('name', 'users.id')
+                                            )
+                                        ,
+                                    ])->minItems($nombreDeServices)
                                     ->maxItems($nombreDeServices),
+
                             ])
 
                             ->grid(2)

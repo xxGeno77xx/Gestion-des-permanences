@@ -27,9 +27,9 @@ class DepartementResource extends Resource
         return $form
             ->schema([
                 TextInput::make('nom_departement')
-                        ->label('Nom du département')
-                        ->unique(ignoreRecord:true)
-                        ->required(),
+                    ->label('Nom du département')
+                    ->unique(ignoreRecord: true)
+                    ->required(),
             ]);
     }
 
@@ -38,7 +38,7 @@ class DepartementResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('nom_departement')
-                        ->label('Nom du département'),
+                    ->label('Nom du département'),
             ])
             ->filters([
                 //
@@ -53,21 +53,27 @@ class DepartementResource extends Resource
                 ]),
             ]);
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ManageDepartements::route('/'),
         ];
-    }    
+    }
 
     public static function canViewAny(): bool
     {
 
-        return auth()->user()->hasAnyPermission([         
+        return auth()->user()->hasAnyPermission([
             PermissionsClass::departements_create()->value,
             PermissionsClass::departements_read()->value,
             PermissionsClass::departements_update()->value
         ]);
     }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 }
+

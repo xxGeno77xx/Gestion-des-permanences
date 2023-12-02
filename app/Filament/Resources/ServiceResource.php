@@ -89,4 +89,9 @@ class ServiceResource extends Resource
             PermissionsClass::services_update()->value
         ]);
     }
+
+    public static function getNavigationBadge(): ?string
+{
+    return static::getModel()::count();
+}
 }

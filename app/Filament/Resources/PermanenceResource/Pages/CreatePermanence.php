@@ -34,5 +34,6 @@ class CreatePermanence extends CreateRecord
         abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
+   
 
 }

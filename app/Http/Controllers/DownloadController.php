@@ -117,10 +117,15 @@ class DownloadController extends Controller
     //putting  users in array
     foreach ($relatedData as $key => $userField) {
 
-        for ($i = 0; $i < $services->count(); $i++) {
+        // for ($i = 0; $i < $services->count(); $i++) {
 
-            if (User::find($userField->user_id[$i]) !== null) {
-                $users[] = User::find($userField->user_id[$i]);
+        //     if (User::find($userField->user_id[$i]) !== null) {
+        //         $users[] = User::find($userField->user_id[$i]);
+        //     }      
+        // }
+        for ($i = 0; $i < $services->count(); $i++) {
+            if (User::find($userField->user_id[$i]['users']) !== null) {
+                $users[] = User::find($userField->user_id[$i]['users']);
             }      
         }
 
